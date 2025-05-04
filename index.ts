@@ -17,10 +17,10 @@ const server = new McpServer({
  */
 function getChromeHistoryPath(): string {
   const envPath = process.env.CHROME_HISTORY_PATH;
-  if (envPath && envPath.trim() !== "") {
-    return envPath;
-  }
   const homeDir = os.homedir();
+  if (envPath && envPath.trim() !== "") {
+    return path.resolve(envPath.replace(/^~/, homeDir));
+  }
   return path.resolve(
     homeDir,
     "Library/Application Support/Google/Chrome/Default/History",
