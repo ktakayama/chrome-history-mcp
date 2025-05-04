@@ -16,16 +16,19 @@ const server = new McpServer({
  * Get the path to the Chrome history file
  */
 function getChromeHistoryPath(): string {
+  const homeDir = os.homedir();
   return path.resolve(
-    process.env.HOME || process.env.USERPROFILE || "",
-    "Library/Application Support/Google/Chrome/Default/History"
+    homeDir,
+    "Library/Application Support/Google/Chrome/Default/History",
   );
 }
 
 /**
  * Copy the Chrome history file to a temporary location to avoid file lock
  */
-async function copyHistoryFile(originalPath: string): Promise<{ tmpFile: string; tmpDir: string }> {
+async function copyHistoryFile(
+  originalPath: string,
+): Promise<{ tmpFile: string; tmpDir: string }> {
   const tmpDir = await mkdtemp(path.join(os.tmpdir(), "chrome-history-"));
   const tmpFile = path.join(tmpDir, "History");
   await copyFile(originalPath, tmpFile);
