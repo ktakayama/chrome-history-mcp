@@ -16,6 +16,10 @@ const server = new McpServer({
  * Get the path to the Chrome history file
  */
 function getChromeHistoryPath(): string {
+  const envPath = process.env.CHROME_HISTORY_PATH;
+  if (envPath && envPath.trim() !== "") {
+    return envPath;
+  }
   const homeDir = os.homedir();
   return path.resolve(
     homeDir,
