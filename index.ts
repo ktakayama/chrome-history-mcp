@@ -45,7 +45,7 @@ async function copyHistoryFile(
 function fetchHistoryFromDb(
   dbPath: string,
   filters: {
-    title?: string;
+    query?: string;
     start_date?: string;
     end_date?: string;
     min_visit_count?: number;
@@ -67,9 +67,16 @@ function fetchHistoryFromDb(
   `;
   const params: any[] = [];
 
-  if (filters.title) {
-    query += " AND urls.title LIKE ?";
-    params.push(`%${filters.title}%`);
+  if (filters.query) {
+    const keywords = filters.query
+      .split(/\s+/)
+      .filter((keyword) => keyword.length > 0);
+    if (keywords.length > 0) {
+      keywords.forEach((keyword) => {
+        query += " AND urls.title LIKE ?";
+        params.push(`%${keyword}%`);
+      });
+    }
   }
   if (filters.start_date && filters.start_date.trim() !== "") {
     const startDate = new Date(filters.start_date);
@@ -131,7 +138,7 @@ function formatHistoryRows(
 server.tool(
   "history",
   {
-    title: z.string().optional(),
+    query: z.string().optional(),
     start_date: z.string().optional(),
     end_date: z.string().optional(),
     min_visit_count: z.number().optional(),
