@@ -46,8 +46,8 @@ function fetchHistoryFromDb(
   dbPath: string,
   filters: {
     title?: string;
-    start_date?: Date;
-    end_date?: Date;
+    start_date?: string;
+    end_date?: string;
     min_visit_count?: number;
     max_visit_count?: number;
     max_length: number;
@@ -71,15 +71,25 @@ function fetchHistoryFromDb(
     query += " AND urls.title LIKE ?";
     params.push(`%${filters.title}%`);
   }
-  if (filters.start_date) {
-    const startTime = (filters.start_date.getTime() + 11644473600000) * 1000;
-    query += " AND visits.visit_time >= ?";
-    params.push(startTime);
+  if (filters.start_date && filters.start_date.trim() !== "") {
+    const startDate = new Date(filters.start_date);
+    if (!isNaN(startDate.getTime())) {
+      const startTime = (startDate.getTime() + 11644473600000) * 1000;
+      query += " AND visits.visit_time >= ?";
+      params.push(startTime);
+    } else {
+      console.warn(`Invalid start_date string provided: ${filters.start_date}`);
+    }
   }
-  if (filters.end_date) {
-    const endTime = (filters.end_date.getTime() + 11644473600000) * 1000;
-    query += " AND visits.visit_time <= ?";
-    params.push(endTime);
+  if (filters.end_date && filters.end_date.trim() !== "") {
+    const endDate = new Date(filters.end_date);
+    if (!isNaN(endDate.getTime())) {
+      const endTime = (endDate.getTime() + 11644473600000) * 1000;
+      query += " AND visits.visit_time <= ?";
+      params.push(endTime);
+    } else {
+      console.warn(`Invalid end_date string provided: ${filters.end_date}`);
+    }
   }
   if (filters.min_visit_count !== undefined) {
     query += " AND urls.visit_count >= ?";
@@ -122,8 +132,8 @@ server.tool(
   "history",
   {
     title: z.string().optional(),
-    start_date: z.date().optional(),
-    end_date: z.date().optional(),
+    start_date: z.string().optional(),
+    end_date: z.string().optional(),
     min_visit_count: z.number().optional(),
     max_visit_count: z.number().optional(),
     max_length: z.number().default(30),
