@@ -3,6 +3,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
+import os from "os";
+import { copyFile, mkdtemp, rm } from "fs/promises";
 import Database from "bun:sqlite";
 
 const server = new McpServer({
@@ -18,6 +20,16 @@ function getChromeHistoryPath(): string {
     process.env.HOME || process.env.USERPROFILE || "",
     "Library/Application Support/Google/Chrome/Default/History"
   );
+}
+
+/**
+ * Copy the Chrome history file to a temporary location to avoid file lock
+ */
+async function copyHistoryFile(originalPath: string): Promise<{ tmpFile: string; tmpDir: string }> {
+  const tmpDir = await mkdtemp(path.join(os.tmpdir(), "chrome-history-"));
+  const tmpFile = path.join(tmpDir, "History");
+  await copyFile(originalPath, tmpFile);
+  return { tmpFile, tmpDir };
 }
 
 /**
@@ -125,7 +137,10 @@ server.tool(
         };
       }
 
-      const rows = fetchHistoryFromDb(historyPath, params);
+      const { tmpFile, tmpDir } = await copyHistoryFile(historyPath);
+      const rows = fetchHistoryFromDb(tmpFile, params);
+      await rm(tmpDir, { recursive: true, force: true });
+
       const text = formatHistoryRows(rows);
 
       return {
