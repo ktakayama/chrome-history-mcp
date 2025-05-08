@@ -73,8 +73,8 @@ function fetchHistoryFromDb(
       .filter((keyword) => keyword.length > 0);
     if (keywords.length > 0) {
       keywords.forEach((keyword) => {
-        query += " AND urls.title LIKE ?";
-        params.push(`%${keyword}%`);
+        query += " AND (urls.title LIKE ? OR urls.url LIKE ?)";
+        params.push(`%${keyword}%`, `%${keyword}%`);
       });
     }
   }
