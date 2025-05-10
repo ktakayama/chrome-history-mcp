@@ -53,7 +53,7 @@ Fetches entries from your Chrome browsing history.
 
 **Parameters:**
 
-*   `query` (string, optional): Filter history entries by title (case-insensitive, partial match).
+*   `query` (string, optional): Filter history entries by title or URL (case-insensitive, partial match).
 *   `start_date` (string, optional): ISO date string to filter entries visited on or after this date.
 *   `end_date` (string, optional): ISO date string to filter entries visited on or before this date.
 *   `min_visit_count` (number, optional): Minimum visit count filter.
@@ -72,7 +72,7 @@ Use the chrome_history tool to find history entries about "Bun" visited in the l
 ```
 
 ```
-Use the chrome_history tool with parameters {"title": "GitHub", "max_length": 5}
+Use the chrome_history tool with parameters {"query": "GitHub", "max_length": 5}
 ```
 
 ## Notes
